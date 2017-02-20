@@ -1,7 +1,6 @@
 # node-token-introspection
 
 Node token introspection package introspects a token towards an oauth service that follows the [RFC 7762](https://tools.ietf.org/html/rfc7662).
-Calling the introspect function will return a promise.
 
 ## Install
 
