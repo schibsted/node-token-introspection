@@ -25,7 +25,7 @@ function tokenIntrospect(opts) {
             form: form,
             json: true,
             headers: {
-                Authorization: 'Basic ' + new Buffer(`${options.clientId}:${options.clientSecret}`).toString('base64'),
+                Authorization: 'Basic ' + new Buffer(`${options.client_id}:${options.client_secret}`).toString('base64'),
                 'User-Agent': 'admin-service'
             }
         })
