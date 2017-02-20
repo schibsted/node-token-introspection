@@ -1,0 +1,28 @@
+{
+  "name": "token-introspection",
+  "version": "0.1.0",
+  "description": "Library to introspect tokens of services following RFC-7662",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/schibsted/node-token-introspection.git"
+  },
+  "keywords": [
+    "token",
+    "introspection",
+    "rfc7662"
+  ],
+  "author": "Joakim Wånggren <joakim.wanggren@schibsted.com>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/schibsted/node-token-introspection/issues"
+  },
+  "homepage": "https://github.com/schibsted/node-token-introspection#readme",
+  "dependencies": {
+    "request": "^2.79.0",
+    "request-promise": "^4.1.1"
+  }
+}
