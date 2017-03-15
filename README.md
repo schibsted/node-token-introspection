@@ -28,6 +28,8 @@ tokenIntrospection(token).then(console.log).catch(console.warn);
 
 | Field         | Required | Comment |
 | ------------- | :------: | ------- |
-| endpoint      | X        | Url to call |
+| endpoint      | X        | Url to call, for instance https://example.com/introspect |
 | client_id     |          | Client ID used to introspect |
 | client_secret |          | Client secret used to introspect |
+| user_agent    |          | Defaults to `token-introspection` |
+| fetch         |          | Defaults to [node-fetch](https://github.com/bitinn/node-fetch), but you can inject [zipkin-instrumentation-fetch](https://www.npmjs.com/package/zipkin-instrumentation-fetch). |
