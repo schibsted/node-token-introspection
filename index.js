@@ -1,11 +1,14 @@
-const request = require('request-promise');
+const fetch = require('node-fetch');
+const FormData = require('form-data');
 
-function tokenIntrospect(opts) {
+function tokenIntrospect(opts = {}) {
 
     const defaults = {
         endpoint: '',
         client_id: '',
-        client_secret: ''
+        client_secret: '',
+        user_agent: 'token-introspection',
+        fetch: fetch
     };
 
     const options = Object.assign({}, defaults, opts);
@@ -15,20 +18,21 @@ function tokenIntrospect(opts) {
     }
 
     return function introspect(token, tokenTypeHint) {
-        const form = { token: token };
+        const form = new FormData();
+        form.append('token', token);
         if (tokenTypeHint) {
-            form.token_type_hint = tokenTypeHint;
+            form.append('token_type_hint', tokenTypeHint);
         }
-        return request({
+
+        return options.fetch(options.endpoint, {
             method: 'POST',
-            url: options.endpoint,
-            form: form,
-            json: true,
+            body: form,
             headers: {
                 Authorization: 'Basic ' + new Buffer(`${options.client_id}:${options.client_secret}`).toString('base64'),
-                'User-Agent': 'admin-service'
+                'User-Agent': options.user_agent
             }
         })
+        .then(res => res.json())
         .then(data => {
             if (data.active === true) {
                 return data;
