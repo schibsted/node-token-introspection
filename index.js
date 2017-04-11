@@ -1,5 +1,5 @@
 const fetch = require('node-fetch');
-const FormData = require('form-data');
+const formEncode = require('form-urlencoded');
 
 function tokenIntrospect(opts = {}) {
 
@@ -18,17 +18,17 @@ function tokenIntrospect(opts = {}) {
     }
 
     return function introspect(token, tokenTypeHint) {
-        const form = new FormData();
-        form.append('token', token);
+        data = { token };
         if (tokenTypeHint) {
-            form.append('token_type_hint', tokenTypeHint);
+            data['token_type_hint'] = tokenTypeHint;
         }
 
         return options.fetch(options.endpoint, {
             method: 'POST',
-            body: form,
+            body: formEncode(data),
             headers: {
                 Authorization: 'Basic ' + new Buffer(`${options.client_id}:${options.client_secret}`).toString('base64'),
+                'Content-Type': 'application/x-www-form-urlencoded',
                 'User-Agent': options.user_agent
             }
         })

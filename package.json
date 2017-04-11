@@ -22,7 +22,7 @@
   },
   "homepage": "https://github.com/schibsted/node-token-introspection#readme",
   "dependencies": {
-    "form-data": "^2.1.2"
+    "form-urlencoded": "^1.5.0"
   },
   "peerDependencies": {
     "node-fetch": "^1.6.3"
