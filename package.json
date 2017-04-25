@@ -1,6 +1,6 @@
 {
   "name": "token-introspection",
-  "version": "0.2.1",
+  "version": "0.3.0",
   "description": "Library to introspect tokens of services following RFC-7662",
   "main": "index.js",
   "scripts": {
