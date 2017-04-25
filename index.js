@@ -1,4 +1,3 @@
-const fetch = require('node-fetch');
 const formEncode = require('form-urlencoded');
 
 function tokenIntrospect(opts = {}) {
@@ -8,13 +7,28 @@ function tokenIntrospect(opts = {}) {
         client_id: '',
         client_secret: '',
         user_agent: 'token-introspection',
-        fetch: fetch
+        proxy: '',
+        fetch: null
     };
 
     const options = Object.assign({}, defaults, opts);
 
     if (!options.endpoint) {
         throw new Error('Endpoint is missing from configuration');
+    }
+
+    if (!options.fetch) {
+        options.fetch = require('node-fetch');
+    }
+
+    let proxy = null;
+    if (options.proxy) {
+        try {
+            const HttpsProxy = require('https-proxy-agent');
+            proxy = new HttpsProxy(options.proxy);
+        } catch (e) {
+            throw new Error('Proxy url given, but not installed https-proxy-agent package');
+        }
     }
 
     return function introspect(token, tokenTypeHint) {
@@ -30,7 +44,8 @@ function tokenIntrospect(opts = {}) {
                 Authorization: 'Basic ' + new Buffer(`${options.client_id}:${options.client_secret}`).toString('base64'),
                 'Content-Type': 'application/x-www-form-urlencoded',
                 'User-Agent': options.user_agent
-            }
+            },
+            agent: proxy
         })
         .then(res => res.json())
         .then(data => {
