@@ -1,11 +1,11 @@
 const formEncode = require('form-urlencoded');
-const util = require('util');
+const promisify = require('util.promisify');
 const debug = require('debug')('token-introspection');
 const JwksClient = require('jwks-rsa');
 const jwt = require('jsonwebtoken');
 const jwk2pem = require('pem-jwk').jwk2pem;
 
-const jwtVerify = util.promisify(jwt.verify);
+const jwtVerify = promisify(jwt.verify);
 
 async function localIntrospect(keys, allowedAlgorithms, token, tokenTypeHint) {
   function findCandidateKeys(jwtHeader) {
@@ -136,7 +136,7 @@ function tokenIntrospect(opts = {}) {
       rateLimit: true,
       jwksUri: options.jwks_uri,
     });
-    fetchJwks = util.promisify(client.getKeys).bind(client);
+    fetchJwks = promisify(client.getKeys).bind(client);
   }
 
   return async function introspect(token, tokenTypeHint) {
