@@ -7,9 +7,7 @@ const TokenIntrospection = require('../index');
 chai.use(chaiAsPromised);
 
 describe('Token introspection', () => {
-  it('throws error if endpoint is missing', () => {
-    expect(() => { TokenIntrospection(); }).to.throw(Error);
-  });
+  it('throws error if endpoint is missing', () => expect(() => { TokenIntrospection(); }).to.throw(Error, 'missing from configuration'));
 
   it('calls fetch with correct parameters', () => {
     const introspection = new TokenIntrospection({
@@ -26,8 +24,7 @@ describe('Token introspection', () => {
         return Promise.resolve({ json: () => ({ active: true }) });
       },
     });
-    expect(introspection('token', 'access_token')).to.eventually.have.property('active');
-    expect(introspection('token', 'access_token')).to.eventually.deep.equal({ active: true });
+    return expect(introspection('token', 'access_token')).to.eventually.deep.equal({ active: true });
   });
 
   it('calls with special proxy agent if given', () => {
@@ -41,7 +38,7 @@ describe('Token introspection', () => {
         return Promise.resolve({ json: () => ({ active: true }) });
       },
     });
-    expect(introspection('token', 'access_token')).to.eventually.have.property('active');
+    return expect(introspection('token', 'access_token')).to.eventually.deep.equal({ active: true });
   });
 
   it('rejects if token is not active', () => {
@@ -51,6 +48,6 @@ describe('Token introspection', () => {
       client_secret: 'secret',
       fetch: () => Promise.resolve({ json: () => ({ active: false }) }),
     });
-    expect(introspection('token', 'access_token')).to.be.rejectedWith(Error);
+    return expect(introspection('token', 'access_token')).to.be.rejectedWith(Error, 'Token is not active');
   });
 });
