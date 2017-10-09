@@ -1,0 +1,6 @@
+test/
+.npmignore
+.travis.yml
+yarn.lock
+.eslintrc
+src/
