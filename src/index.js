@@ -1,36 +1,8 @@
-const formEncode = require('form-urlencoded');
 const promisify = require('util.promisify');
 const debug = require('debug')('token-introspection');
 const JwksClient = require('jwks-rsa');
 const localIntrospect = require('./local-introspection');
-
-function remoteIntrospect(requestInfo, token, tokenTypeHint) {
-  const data = { token };
-  if (tokenTypeHint) {
-    data.token_type_hint = tokenTypeHint;
-  }
-
-  return requestInfo.fetch(requestInfo.endpoint, {
-    method: 'POST',
-    body: formEncode(data),
-    headers: {
-      Authorization: `Basic ${new Buffer(`${requestInfo.client_id}:${requestInfo.client_secret}`).toString('base64')}`,
-      'Content-Type': 'application/x-www-form-urlencoded',
-      'User-Agent': requestInfo.user_agent,
-    },
-    agent: requestInfo.proxy,
-  })
-    .then(res => res.json())
-    .then((tokenData) => {
-      if (tokenData.active === true) {
-        return tokenData;
-      }
-      throw new Error('Token is not active');
-    })
-    .catch((err) => {
-      throw err;
-    });
-}
+const remoteIntrospect = require('./remote-introspection');
 
 function tokenIntrospect(opts = {}) {
   const defaults = {
