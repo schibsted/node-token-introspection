@@ -32,6 +32,7 @@ function tokenIntrospect(opts = {}) {
     try {
       const HttpsProxy = require('https-proxy-agent');
       proxy = new HttpsProxy(options.proxy);
+      process.env.HTTPS_PROXY = options.proxy;
     } catch (e) {
       throw new Error('Proxy url given, but not installed https-proxy-agent package');
     }
