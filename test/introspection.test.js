@@ -71,66 +71,29 @@ describe('Remote token introspection', () => {
 });
 
 describe('Local token introspection with static JWKS', () => {
-  const introspection = new TokenIntrospection({
-    fetch: () => {
-      throw new Error('should not be called');
-    },
-    jwks,
-  });
+  it('does local introspection with static keys if JWKS is specified', () => {
+    const introspection = new TokenIntrospection({
+      fetch: () => {
+        throw new Error('should not be called');
+      },
+      jwks,
+    });
 
-  it('does local introspection if JWKS is specified', () => {
     const now = Date.now() / 1000;
     const accessTokenClaims = { exp: now + 5 };
     const accessToken = jwt.sign(accessTokenClaims, privateKey, { algorithm: 'RS256', keyid: keyId, noTimestamp: true });
     return expect(introspection(accessToken, 'access_token')).to.eventually.deep.equal(Object.assign({ active: true }, accessTokenClaims));
   });
 
-  it('finds matching key for token without kid', () => {
-    const keys = jwks.keys.slice();
-    const otherKey = { n: '5hkbMTpub6WuqITpPhQHr5nvYz1t7PUg8ph9DEi55TtJXUT46S6viY-lNpBdLCOWes3mDD0VWKyXMO9JAeB9nw', e: 'AQAB' };
-    keys.unshift(otherKey);
-    const instance = new TokenIntrospection({
-      fetch: () => {
-        throw new Error('should not be called');
-      },
-      jwks: { keys },
+  it('does local introspection with remote keys if JWKS uri is specified', () => {
+    const introspection = new TokenIntrospection({
+      jwks_uri: jwksUri,
+      fetch: () => { throw new Error('should not be called'); },
     });
-
-    const now = Date.now() / 1000;
-    const accessTokenClaims = { exp: now + 5 };
-    const accessToken = jwt.sign(accessTokenClaims, privateKey, { algorithm: 'RS256', noTimestamp: true });
-    return expect(instance(accessToken, 'access_token')).to.eventually.deep.equal(Object.assign({ active: true }, accessTokenClaims));
-  });
-
-  it('rejects mismatching kid for static JWKS', () => {
-    const now = Date.now() / 1000;
-    const accessTokenClaims = { exp: now + 5 };
-    const accessToken = jwt.sign(accessTokenClaims, privateKey, { algorithm: 'RS256', keyid: 'other_key_id' });
-    return expect(introspection(accessToken, 'access_token')).to.be.rejectedWith(Error, 'Token is not active');
-  });
-
-  it('rejects other token type than access_token', () => expect(introspection('foobar', 'other_token')).to.be.rejectedWith(Error, 'Token is not active'));
-
-  it('rejects expired token', () => {
-    const before = (Date.now() / 1000) - 1000;
-    const accessTokenClaims = { iat: before, exp: before + 5 };
-    const accessToken = jwt.sign(accessTokenClaims, privateKey, { algorithm: 'RS256' });
-    return expect(introspection(accessToken, 'access_token')).to.be.rejectedWith(Error, 'Token is not active');
-  });
-
-  it('rejects non-jwt token', () => expect(introspection('foobar', 'access_token')).to.be.rejectedWith(Error, 'Token is not active'));
-});
-
-describe('Local token introspection with remote JWKS', () => {
-  const introspection = new TokenIntrospection({
-    jwks_uri: jwksUri,
-    fetch: () => { throw new Error('should not be called'); },
-  });
-
-  it('does local introspection if JWKS uri is specified', () => {
     nock('http://example.com')
       .get('/jwks')
       .reply(200, JSON.stringify(jwks));
+
     const now = Date.now() / 1000;
     const accessTokenClaims = { exp: now + 5 };
     const accessToken = jwt.sign(accessTokenClaims, privateKey, { algorithm: 'RS256', keyid: keyId, noTimestamp: true });

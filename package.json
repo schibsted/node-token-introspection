@@ -8,7 +8,7 @@
     "lint": "eslint --ignore-path .gitignore .",
     "preversion": "yarn run lint && yarn run test",
     "postversion": "git push && git push --tags",
-    "compile": "babel index.js --out-dir lib",
+    "compile": "babel src --out-dir lib",
     "prepare": "npm run compile"
   },
   "repository": {

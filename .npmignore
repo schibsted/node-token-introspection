@@ -3,4 +3,4 @@ test/
 .travis.yml
 yarn.lock
 .eslintrc
-index.js
+src/
