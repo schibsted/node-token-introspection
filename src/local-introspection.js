@@ -17,13 +17,12 @@ async function localIntrospect(keys, allowedAlgorithms, token, tokenTypeHint) {
     throw new Error('Token is not a JWT');
   }
 
-  const possibleVerificationKeys = findCandidateKeys(decodedToken.header, keys)
-    .map(jwk2pem);
+  const possibleVerificationKeys = findCandidateKeys(decodedToken.header, keys);
 
   /* eslint-disable no-restricted-syntax, no-await-in-loop */
   for (const key of possibleVerificationKeys) {
     try {
-      const verified = await jwtVerify(token, key, { algorithms: allowedAlgorithms });
+      const verified = await jwtVerify(token, jwk2pem(key), { algorithms: allowedAlgorithms });
       return Object.assign({ active: true }, verified);
     } catch (err) {
       if (err instanceof jwt.TokenExpiredError) {
