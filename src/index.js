@@ -23,7 +23,7 @@ function tokenIntrospect(opts = {}) {
     throw new Error('Static JWKS, a JWKS URI or introspection endpoint must be specified in the configuration');
   }
 
-  if (options.jwks_uri && !options.fetch) {
+  if ((options.jwks_uri || options.endpoint) && !options.fetch) {
     options.fetch = require('node-fetch');
   }
 
