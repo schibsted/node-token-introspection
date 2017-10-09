@@ -55,7 +55,7 @@ describe('Local token introspection', () => {
   it('rejects symmetrically signed token', () => {
     const now = Date.now() / 1000;
     const accessTokenClaims = { exp: now + 5 };
-    const secretKey = 'super secret key'
+    const secretKey = 'super secret key';
     const accessToken = jwt.sign(accessTokenClaims, secretKey, { algorithm: 'HS256' });
     return expect(localIntrospect([publicKeyJWK], ['RS256'], accessToken, 'access_token')).to.be.rejectedWith(Error, 'Could not verify token with any key');
   });

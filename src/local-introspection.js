@@ -5,6 +5,35 @@ const promisify = require('util.promisify');
 
 const jwtVerify = promisify(jwt.verify);
 
+function findCandidateKeys(jwtHeader, keys) {
+  function alg2keyType(alg) {
+    if (alg.startsWith('HS')) {
+      return 'oct';
+    } else if (alg.startsWith('RS') || alg.startsWith('PS')) {
+      return 'RSA';
+    } else if (alg.startsWith('ES')) {
+      return 'EC';
+    }
+    return null;
+  }
+
+  const filteredKeys = keys.slice()
+    .filter(key => key.kty && key.kty === alg2keyType(jwtHeader.alg));
+  debug('Filtered keys for \'%s\', found %d', jwtHeader.alg, filteredKeys.length);
+
+  if (jwtHeader.kid) {
+    const keyWithKeyId = filteredKeys.find(key => key.kid === jwtHeader.kid);
+    if (keyWithKeyId) {
+      debug('Found key for key id %s', jwtHeader.kid);
+      return [keyWithKeyId];
+    }
+    debug('No key found for key id %s', jwtHeader.kid);
+    return [];
+  }
+
+  return filteredKeys;
+}
+
 async function localIntrospect(keys, allowedAlgorithms, token, tokenTypeHint) {
   if (tokenTypeHint !== 'access_token') {
     debug('Not an access token, tokenTypeHint=%s', tokenTypeHint);
@@ -33,35 +62,6 @@ async function localIntrospect(keys, allowedAlgorithms, token, tokenTypeHint) {
   /* eslint-enable */
 
   throw new Error('Could not verify token with any key');
-}
-
-function findCandidateKeys(jwtHeader, keys) {
-  function alg2keyType(alg) {
-    if (alg.startsWith('HS')) {
-      return 'oct';
-    } else if (alg.startsWith('RS') || alg.startsWith('PS')) {
-      return 'RSA';
-    } else if (alg.startsWith('ES')) {
-      return 'EC';
-    }
-    return null;
-  }
-
-  const filteredKeys = keys.slice()
-    .filter(key => key.kty && key.kty === alg2keyType(jwtHeader.alg));
-  debug('Filtered keys for \'%s\', found %d', jwtHeader.alg, filteredKeys.length);
-
-  if (jwtHeader.kid) {
-    const keyWithKeyId = filteredKeys.find(key => key.kid === jwtHeader.kid);
-    if (keyWithKeyId) {
-      debug('Found key for key id %s', jwtHeader.kid);
-      return [keyWithKeyId];
-    }
-    debug('No key found for key id %s', jwtHeader.kid);
-    return [];
-  }
-
-  return filteredKeys;
 }
 
 module.exports = localIntrospect;

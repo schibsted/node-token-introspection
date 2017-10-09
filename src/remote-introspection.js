@@ -6,7 +6,7 @@ async function remoteIntrospect(requestInfo, token, tokenTypeHint) {
   if (tokenTypeHint) {
     data.token_type_hint = tokenTypeHint;
   }
-  
+
   let res;
   try {
     res = await requestInfo.fetch(requestInfo.endpoint, {
@@ -20,7 +20,7 @@ async function remoteIntrospect(requestInfo, token, tokenTypeHint) {
       agent: requestInfo.proxy,
     });
   } catch (err) {
-    debug('Remote token introspection request failed: ' + err.message);
+    debug(`Remote token introspection request failed: ${err.message}`);
     throw new Error('Remote introspection request failed');
   }
 
