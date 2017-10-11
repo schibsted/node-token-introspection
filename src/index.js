@@ -1,8 +1,6 @@
-const promisify = require('util.promisify');
 const debug = require('debug')('token-introspection');
-const JwksClient = require('jwks-rsa');
-const localIntrospect = require('./local-introspection');
-const remoteIntrospect = require('./remote-introspection');
+const localIntrospection = require('./local-introspection');
+const remoteIntrospection = require('./remote-introspection');
 
 function tokenIntrospect(opts = {}) {
   const defaults = {
@@ -38,46 +36,19 @@ function tokenIntrospect(opts = {}) {
     }
   }
 
-  const remoteIntrospectionInfo = Object.assign({}, options, { proxy });
-  let fetchJwks = null;
-  if (options.jwks_uri) {
-    const client = new JwksClient({
-      cache: true,
-      rateLimit: true,
-      jwksUri: options.jwks_uri,
-    });
-    fetchJwks = promisify(client.getKeys).bind(client);
-  }
+  const remoteIntrospect = remoteIntrospection(Object.assign({}, options, { proxy }));
+  const localIntrospect = localIntrospection(options);
 
   return async function introspect(token, tokenTypeHint) {
-    async function tryLocalIntrospect(keys) {
-      try {
-        return await localIntrospect(keys, options.allowed_algs, token, tokenTypeHint);
-      } catch (err) {
-        debug('Could not verify token: %s', err.message);
-        return null;
-      }
-    }
-
-    // Verification method order: static JWKS -> remote JWKS -> remote introspection
-    let verifiedToken = null;
-    if (options.jwks) {
-      debug('Using static JWKS to introspect token');
-      verifiedToken = await tryLocalIntrospect(options.jwks.keys);
-    }
-
-    if (!verifiedToken && fetchJwks) {
-      debug('Using remote JWKS to introspect token');
-      verifiedToken = await tryLocalIntrospect(await fetchJwks());
-    }
-
-    if (verifiedToken) {
-      return verifiedToken;
+    try {
+      return await localIntrospect(token, tokenTypeHint);
+    } catch (err) {
+      debug('Could not verify token: %s', err.message);
     }
 
     if (options.endpoint) {
       debug('Doing remote introspection');
-      return remoteIntrospect(remoteIntrospectionInfo, token, tokenTypeHint);
+      return remoteIntrospect(token, tokenTypeHint);
     }
 
     throw new Error('Token is not active');

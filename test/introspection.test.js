@@ -16,7 +16,7 @@ const keyId = 'test_key_id';
 function setupJwks() {
   const publicKey = fs.readFileSync('./test/public.pem', 'ascii');
   const jwk = pem2jwk(publicKey);
-  return { keys: [Object.assign({ kid: keyId }, jwk)] };
+  return { keys: [Object.assign({ kid: keyId, use: 'sig' }, jwk)] };
 }
 const privateKey = fs.readFileSync('./test/private.pem', 'ascii');
 const jwks = setupJwks(keyId);
