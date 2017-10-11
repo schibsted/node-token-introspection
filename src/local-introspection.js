@@ -13,7 +13,7 @@ module.exports = (options) => {
     jwksFetchKey = (key) => {
       const k = options.jwks.keys.find(obj => obj.kid === key);
       if (k) {
-        return Promise.resolve(k);
+        return Promise.resolve(Object.assign({ rsaPublicKey: jwk2pem(k) }, k));
       }
       return Promise.reject('Unable to find key');
     };
@@ -54,7 +54,7 @@ module.exports = (options) => {
     let pem;
     try {
       const key = await jwksFetchKey(decodedToken.header.kid);
-      pem = key.rsaPublicKey ? key.rsaPublicKey : jwk2pem(key);
+      pem = key.publicKey || key.rsaPublicKey;
     } catch (err) {
       throw new Error('Could not find key matching kid');
     }
