@@ -8,14 +8,17 @@ const jwtVerify = promisify(jwt.verify);
 
 module.exports = (options) => {
   let jwksFetchKey = null;
-  if (options.jwks) {
+  if (options.jwks && options.jwks.keys) {
     debug('Configured JWKS with static keys');
-    jwksFetchKey = (key) => {
-      const k = options.jwks.keys.find(obj => obj.kid === key);
-      if (k) {
-        return Promise.resolve(Object.assign({ rsaPublicKey: jwk2pem(k) }, k));
+    const keys = {};
+    options.jwks.keys.forEach((k) => {
+      keys[k.kid] = jwk2pem(k);
+    });
+    jwksFetchKey = async function jwksFetchStaticKey(keyId) {
+      if (keys[keyId]) {
+        return { key: keyId, nbf: null, rsaPublicKey: keys[keyId] };
       }
-      return Promise.reject('Unable to find key');
+      throw new Error('Unable to find key');
     };
   } else if (options.jwks_uri) {
     debug('Configured JWKS with remote keys');
