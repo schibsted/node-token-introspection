@@ -44,10 +44,10 @@ function tokenIntrospect(opts = {}) {
     try {
       return await localIntrospect(token, tokenTypeHint);
     } catch (err) {
+      debug('Could not verify token: %s', err.message);
       if (err instanceof jwt.TokenExpiredError || err instanceof jwt.NotBeforeError) {
         throw err;
       }
-      debug('Could not verify token: %s', err.message);
     }
 
     if (options.endpoint) {
