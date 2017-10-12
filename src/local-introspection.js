@@ -1,67 +1,75 @@
 const debug = require('debug')('token-introspection');
+const JwksClient = require('jwks-rsa');
 const jwk2pem = require('pem-jwk').jwk2pem;
 const jwt = require('jsonwebtoken');
 const promisify = require('util.promisify');
 
 const jwtVerify = promisify(jwt.verify);
 
-function findCandidateKeys(jwtHeader, keys) {
-  function alg2keyType(alg) {
-    if (alg.startsWith('HS')) {
-      return 'oct';
-    } else if (alg.startsWith('RS') || alg.startsWith('PS')) {
-      return 'RSA';
-    } else if (alg.startsWith('ES')) {
-      return 'EC';
+module.exports = (options) => {
+  let jwksFetchKey = null;
+  if (options.jwks && options.jwks.keys) {
+    debug('Configured JWKS with static keys');
+    const keys = {};
+    options.jwks.keys.forEach((k) => {
+      keys[k.kid] = jwk2pem(k);
+    });
+    jwksFetchKey = async function jwksFetchStaticKey(keyId) {
+      if (keys[keyId]) {
+        return { key: keyId, nbf: null, rsaPublicKey: keys[keyId] };
+      }
+      throw new Error('Unable to find key');
+    };
+  } else if (options.jwks_uri) {
+    debug('Configured JWKS with remote keys');
+    const jwksClient = new JwksClient({
+      cache: options.jwks_cache_enabled || true,
+      cacheMaxEntries: options.jwks_cache_maxentries || 10,
+      cacheMaxAge: options.jwks_cache_time || 5 * 60 * 1000, // 5 min
+      rateLimit: options.jwks_ratelimit_enabled || true,
+      jwksRequestsPerMinute: options.jwks_ratelimit_per_minute || 60, // 1 rps
+      jwksUri: options.jwks_uri,
+    });
+    jwksFetchKey = promisify(jwksClient.getSigningKey).bind(jwksClient);
+  }
+
+  return async function localIntrospect(token, tokenTypeHint) {
+    if (!jwksFetchKey) {
+      throw new Error('Neither `jwks` or `jwks_uri` defined');
     }
-    return null;
-  }
 
-  const filteredKeys = keys.slice()
-    .filter(key => key.kty && key.kty === alg2keyType(jwtHeader.alg));
-  debug('Filtered keys for \'%s\', found %d', jwtHeader.alg, filteredKeys.length);
-
-  if (jwtHeader.kid) {
-    const keyWithKeyId = filteredKeys.find(key => key.kid === jwtHeader.kid);
-    if (keyWithKeyId) {
-      debug('Found key for key id %s', jwtHeader.kid);
-      return [keyWithKeyId];
+    if (tokenTypeHint !== 'access_token') {
+      debug('Not an access token, tokenTypeHint=%s', tokenTypeHint);
+      throw new Error('Only access tokens are supported for local introspection');
     }
-    debug('No key found for key id %s', jwtHeader.kid);
-    return [];
-  }
 
-  return filteredKeys;
-}
+    const decodedToken = jwt.decode(token, { complete: true });
+    if (!decodedToken) {
+      debug('Not a JWT token');
+      throw new Error('Token is not a JWT');
+    }
 
-async function localIntrospect(keys, allowedAlgorithms, token, tokenTypeHint) {
-  if (tokenTypeHint !== 'access_token') {
-    debug('Not an access token, tokenTypeHint=%s', tokenTypeHint);
-    throw new Error('Only access tokens are supported for local introspection');
-  }
+    if (!decodedToken.header.kid) {
+      debug('Tokens does not contain kid in header');
+      throw new Error('Token does not contain kid in header');
+    }
 
-  const decodedToken = jwt.decode(token, { complete: true });
-  if (!decodedToken) {
-    debug('Not a JWT token');
-    throw new Error('Token is not a JWT');
-  }
-
-  const possibleVerificationKeys = findCandidateKeys(decodedToken.header, keys);
-
-  /* eslint-disable no-restricted-syntax, no-await-in-loop */
-  for (const key of possibleVerificationKeys) {
+    let pem;
     try {
-      const verified = await jwtVerify(token, jwk2pem(key), { algorithms: allowedAlgorithms });
+      const key = await jwksFetchKey(decodedToken.header.kid);
+      pem = key.publicKey || key.rsaPublicKey;
+    } catch (err) {
+      throw new Error('Could not find key matching kid');
+    }
+
+    try {
+      const verified = await jwtVerify(token, pem, { algorithms: options.allowed_algs });
       return Object.assign({ active: true }, verified);
     } catch (err) {
       if (err instanceof jwt.TokenExpiredError) {
         throw new Error('Token has expired');
       }
+      throw new Error(`Could not verify token:  ${err.message}`);
     }
-  }
-  /* eslint-enable */
-
-  throw new Error('Could not verify token with any key');
-}
-
-module.exports = localIntrospect;
+  };
+};
