@@ -45,6 +45,11 @@ tokenIntrospection(token).then(console.log).catch(console.warn);
 
 At least one of the required configuration parameters `jwks`, `jwks_uri` or `endpoint` must be specified.
 
+## Errors
+This is a promise/async library, and will resolve with success or reject with an Error.
+Remote introspection, and most usage will throw Error, but local introspection may throw
+TokenExpiredError or NotBeforeError, of [jsonwebtoken](https://github.com/auth0/node-jsonwebtoken) package.
+
 ## Showing debug output
 
 Set the environment variable `DEBUG=token-introspection`.

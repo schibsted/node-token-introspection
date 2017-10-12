@@ -62,14 +62,8 @@ module.exports = (options) => {
       throw new Error('Could not find key matching kid');
     }
 
-    try {
-      const verified = await jwtVerify(token, pem, { algorithms: options.allowed_algs });
-      return Object.assign({ active: true }, verified);
-    } catch (err) {
-      if (err instanceof jwt.TokenExpiredError) {
-        throw new Error('Token has expired');
-      }
-      throw new Error(`Could not verify token:  ${err.message}`);
-    }
+    // jwtVerify may throw, but index will catch
+    const verified = await jwtVerify(token, pem, { algorithms: options.allowed_algs });
+    return Object.assign({ active: true }, verified);
   };
 };
