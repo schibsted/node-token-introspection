@@ -1,4 +1,5 @@
 const debug = require('debug')('token-introspection');
+const jwt = require('jsonwebtoken');
 const localIntrospection = require('./local-introspection');
 const remoteIntrospection = require('./remote-introspection');
 
@@ -44,6 +45,9 @@ function tokenIntrospect(opts = {}) {
       return await localIntrospect(token, tokenTypeHint);
     } catch (err) {
       debug('Could not verify token: %s', err.message);
+      if (err instanceof jwt.TokenExpiredError || err instanceof jwt.NotBeforeError) {
+        throw err;
+      }
     }
 
     if (options.endpoint) {

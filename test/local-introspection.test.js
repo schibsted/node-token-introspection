@@ -48,7 +48,7 @@ describe('Local token introspection', () => {
     const accessTokenClaims = { iat: before, exp: before + 5 };
     const accessToken = jwt.sign(accessTokenClaims, privateKey, { algorithm: 'RS256', keyid: keyId });
     const localIntrospect = localIntrospection({ jwks: jwksWrap([publicKeyJWK]), allowed_algs: ['RS256'] });
-    return expect(localIntrospect(accessToken, 'access_token')).to.be.rejectedWith(Error, 'Token has expired');
+    return expect(localIntrospect(accessToken, 'access_token')).to.be.rejectedWith(jwt.TokenExpiredError, 'jwt expired');
   });
 
   it('rejects non-jwt token', () => {
