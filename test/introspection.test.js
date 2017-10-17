@@ -39,7 +39,7 @@ describe('Remote token introspection', () => {
         assert.equal(opts.headers['Content-Type'], 'application/x-www-form-urlencoded');
         assert.equal(opts.body, 'token=token&token_type_hint=access_token');
         assert.isNull(opts.agent);
-        return Promise.resolve({ json: () => ({ active: true }) });
+        return Promise.resolve({ json: () => Promise.resolve({ active: true }) });
       },
     });
     return expect(introspection('token', 'access_token')).to.eventually.deep.equal({ active: true });
@@ -53,7 +53,7 @@ describe('Remote token introspection', () => {
       proxy: 'example.proxy.com:3128',
       fetch: (url, opts) => {
         assert.typeOf(opts.agent, 'object');
-        return Promise.resolve({ json: () => ({ active: true }) });
+        return Promise.resolve({ json: () => Promise.resolve({ active: true }) });
       },
     });
     return expect(introspection('token', 'access_token')).to.eventually.deep.equal({ active: true });
@@ -64,7 +64,7 @@ describe('Remote token introspection', () => {
       endpoint: 'http://example.com/oauth/introspection',
       client_id: 'client',
       client_secret: 'secret',
-      fetch: () => Promise.resolve({ json: () => ({ active: false }) }),
+      fetch: () => Promise.resolve({ json: () => Promise.resolve({ active: false }) }),
     });
     return expect(introspection('token', 'access_token')).to.be.rejectedWith(Error, 'Token is not active');
   });
@@ -113,7 +113,7 @@ describe('Fallback order for introspection methods: local introspection with sta
       endpoint: 'http://example.com/oauth/introspection',
       client_id: 'client',
       client_secret: 'secret',
-      fetch: () => Promise.resolve({ json: () => ({ active: true }) }),
+      fetch: () => Promise.resolve({ json: () => Promise.resolve({ active: true }) }),
     });
     return expect(introspection('token', 'access_token')).to.eventually.deep.equal({ active: true });
   });
