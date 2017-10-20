@@ -3,6 +3,7 @@ const JwksClient = require('jwks-rsa');
 const jwk2pem = require('pem-jwk').jwk2pem;
 const jwt = require('jsonwebtoken');
 const promisify = require('util.promisify');
+const errors = require('./errors');
 
 const jwtVerify = promisify(jwt.verify);
 
@@ -18,7 +19,7 @@ module.exports = (options) => {
       if (keys[keyId]) {
         return { key: keyId, nbf: null, rsaPublicKey: keys[keyId] };
       }
-      throw new Error('Unable to find key');
+      throw new errors.IntrospectionError('Unable to find key');
     };
   } else if (options.jwks_uri) {
     debug('Configured JWKS with remote keys');
@@ -35,23 +36,23 @@ module.exports = (options) => {
 
   return async function localIntrospect(token, tokenTypeHint) {
     if (!jwksFetchKey) {
-      throw new Error('Neither `jwks` or `jwks_uri` defined');
+      throw new errors.ConfigurationError('Neither `jwks` or `jwks_uri` defined');
     }
 
     if (tokenTypeHint !== 'access_token') {
       debug('Not an access token, tokenTypeHint=%s', tokenTypeHint);
-      throw new Error('Only access tokens are supported for local introspection');
+      throw new errors.MalformedTokenError('Only access tokens are supported for local introspection');
     }
 
     const decodedToken = jwt.decode(token, { complete: true });
     if (!decodedToken) {
       debug('Not a JWT token');
-      throw new Error('Token is not a JWT');
+      throw new errors.MalformedTokenError('Token is not a JWT');
     }
 
     if (!decodedToken.header.kid) {
       debug('Tokens does not contain kid in header');
-      throw new Error('Token does not contain kid in header');
+      throw new errors.MalformedTokenError('Token does not contain kid in header');
     }
 
     let pem;
@@ -59,11 +60,20 @@ module.exports = (options) => {
       const key = await jwksFetchKey(decodedToken.header.kid);
       pem = key.publicKey || key.rsaPublicKey;
     } catch (err) {
-      throw new Error('Could not find key matching kid');
+      throw new errors.MalformedTokenError('Could not find key matching kid');
     }
 
-    // jwtVerify may throw, but index will catch
-    const verified = await jwtVerify(token, pem, { algorithms: options.allowed_algs });
-    return Object.assign({ active: true }, verified);
+    try {
+      const verified = await jwtVerify(token, pem, { algorithms: options.allowed_algs });
+      return Object.assign({ active: true }, verified);
+    } catch (err) {
+      if (err instanceof jwt.TokenExpiredError) {
+        throw new errors.TokenExpiredError();
+      }
+      if (err instanceof jwt.NotBeforeError) {
+        throw new errors.NotBeforeError();
+      }
+      throw new errors.IntrospectionError(err.message);
+    }
   };
 };

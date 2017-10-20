@@ -1,5 +1,6 @@
 const debug = require('debug')('token-introspection');
 const formEncode = require('form-urlencoded');
+const errors = require('./errors');
 
 module.exports = (options) => {
   const fetchOption = {
@@ -25,7 +26,7 @@ module.exports = (options) => {
       );
     } catch (err) {
       debug(`Remote token introspection request failed: ${err.message}`);
-      throw new Error('Remote introspection request failed');
+      throw new errors.IntrospectionError('Remote introspection request failed');
     }
 
     const tokenData = await res.json();
@@ -33,6 +34,6 @@ module.exports = (options) => {
       return tokenData;
     }
 
-    throw new Error('Token is not active');
+    throw new errors.TokenNotActiveError();
   };
 };

@@ -2,6 +2,7 @@ const expect = require('chai').expect;
 const chai = require('chai');
 const chaiAsPromised = require('chai-as-promised');
 const localIntrospection = require('../lib/local-introspection');
+const errors = require('../lib/errors');
 
 const fs = require('fs');
 const jwt = require('jsonwebtoken');
@@ -48,7 +49,7 @@ describe('Local token introspection', () => {
     const accessTokenClaims = { iat: before, exp: before + 5 };
     const accessToken = jwt.sign(accessTokenClaims, privateKey, { algorithm: 'RS256', keyid: keyId });
     const localIntrospect = localIntrospection({ jwks: jwksWrap([publicKeyJWK]), allowed_algs: ['RS256'] });
-    return expect(localIntrospect(accessToken, 'access_token')).to.be.rejectedWith(jwt.TokenExpiredError, 'jwt expired');
+    return expect(localIntrospect(accessToken, 'access_token')).to.be.rejectedWith(errors.TokenExpiredError, 'Token has expired');
   });
 
   it('rejects non-jwt token', () => {
