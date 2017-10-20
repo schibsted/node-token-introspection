@@ -73,7 +73,7 @@ module.exports = (options) => {
       if (err instanceof jwt.NotBeforeError) {
         throw new errors.NotBeforeError();
       }
-      throw new errors.IntrospectionError();
+      throw new errors.IntrospectionError(err.message);
     }
   };
 };
