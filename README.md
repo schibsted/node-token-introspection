@@ -8,6 +8,12 @@ Node token introspection package introspects a token towards an oauth service th
 npm install token-introspection --save
 ```
 
+# Node version
+
+Currently we only support latest Node LTS.
+If you want to use an earlier version of node, please use
+[babel register](https://babeljs.io/docs/usage/babel-register/).
+
 ## Usage
 
 Introspect package is configured with endpoint and client credentials, and a function is returned.
@@ -48,12 +54,12 @@ At least one of the required configuration parameters `jwks`, `jwks_uri` or `end
 ## Errors
 This is a promise/async library, and will resolve with success or reject with an Error subclass.
 
-* `IntrospectionError`: Base error, thrown when introspection fails for some reason.  
-* `ConfigurationError`: Thrown when configuration is wrong.  
-* `MalformedTokenError`: Thrown when token is malformed, currently not publicly exposed.  
-* `TokenNotActiveError`: Thrown when token is not active, base error for `TokenExpiredError` and `NotBeforeError`.  
-* `TokenExpiredError`: Thrown in local introspection when token has expired.  
-* `NotBeforeError`: Thrown in local introspection when token is not yet valid  
+* `IntrospectionError`: Base error, thrown when introspection fails for some reason.
+* `ConfigurationError`: Thrown when configuration is wrong.
+* `MalformedTokenError`: Thrown when token is malformed, currently not publicly exposed.
+* `TokenNotActiveError`: Thrown when token is not active, base error for `TokenExpiredError` and `NotBeforeError`.
+* `TokenExpiredError`: Thrown in local introspection when token has expired.
+* `NotBeforeError`: Thrown in local introspection when token is not yet valid
 
 ## Showing debug output
 

@@ -1,6 +1,3 @@
-test/
-.npmignore
-.travis.yml
-yarn.lock
-.eslintrc
-src/
+*
+!src/**/*
+!index.js
