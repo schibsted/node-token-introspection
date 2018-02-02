@@ -32,7 +32,7 @@
     "pem-jwk": "^1.5.1"
   },
   "engines": {
-    "node": "^8.9.1",
+    "node": "^8.9",
     "npm": "^5.6.0"
   },
   "peerDependencies": {
