@@ -2,14 +2,12 @@
   "name": "token-introspection",
   "version": "0.6.0",
   "description": "Library to introspect tokens of services following RFC-7662",
-  "main": "lib/index.js",
+  "main": "src/index.js",
   "scripts": {
-    "test": "npm run compile && NODE_ENV=test mocha",
+    "test": "NODE_ENV=test mocha",
     "lint": "eslint --ignore-path .gitignore .",
-    "preversion": "yarn run lint && yarn run test",
-    "postversion": "git push && git push --tags",
-    "compile": "babel src --out-dir lib",
-    "prepare": "npm run compile"
+    "preversion": "npm run lint && npm run test",
+    "postversion": "git push && git push --tags"
   },
   "repository": {
     "type": "git",
@@ -33,6 +31,10 @@
     "jwks-rsa": "^1.2.0",
     "pem-jwk": "^1.5.1"
   },
+  "engines": {
+    "node": "^8.9.1",
+    "npm": "^5.6.0"
+  },
   "peerDependencies": {
     "node-fetch": "^1.6.3"
   },
@@ -40,8 +42,6 @@
     "https-proxy-agent": "^1.0.0"
   },
   "devDependencies": {
-    "babel-cli": "^6.24.1",
-    "babel-preset-env": "^1.6.0",
     "chai": "^3.5.0",
     "chai-as-promised": "^6.0.0",
     "eslint": "^3.19.0",
