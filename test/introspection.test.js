@@ -3,7 +3,7 @@ const expect = require('chai').expect;
 const chai = require('chai');
 const chaiAsPromised = require('chai-as-promised');
 const nock = require('nock');
-const TokenIntrospection = require('../lib/index');
+const TokenIntrospection = require('../src/index');
 
 const fs = require('fs');
 const jwt = require('jsonwebtoken');

@@ -1,8 +1,8 @@
 const expect = require('chai').expect;
 const chai = require('chai');
 const chaiAsPromised = require('chai-as-promised');
-const localIntrospection = require('../lib/local-introspection');
-const errors = require('../lib/errors');
+const localIntrospection = require('../src/local-introspection');
+const errors = require('../src/errors');
 
 const fs = require('fs');
 const jwt = require('jsonwebtoken');
