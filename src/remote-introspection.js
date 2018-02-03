@@ -29,6 +29,10 @@ module.exports = (options) => {
       throw new errors.IntrospectionError('Remote introspection request failed');
     }
 
+    if (!res.ok) {
+      throw new errors.IntrospectionError(`Server error ${res.status} ${res.statusText} ${res.url} \n${await res.text()}`);
+    }
+
     const tokenData = await res.json();
     if (tokenData.active === true) {
       return tokenData;
