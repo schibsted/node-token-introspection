@@ -44,7 +44,7 @@ function tokenIntrospect(opts = {}) {
     try {
       return await localIntrospect(token, tokenTypeHint);
     } catch (err) {
-      debug('Could not verify token: %s', err.message);
+      debug(`Could not locally verify token: ${err.message}`);
       if (err instanceof errors.TokenExpiredError || err instanceof errors.NotBeforeError) {
         throw err;
       }
