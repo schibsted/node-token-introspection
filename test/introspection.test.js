@@ -1,14 +1,12 @@
-const assert = require('chai').assert;
-const expect = require('chai').expect;
+const fs = require('fs');
 const chai = require('chai');
 const chaiAsPromised = require('chai-as-promised');
 const nock = require('nock');
+const jwt = require('jsonwebtoken');
+const { pem2jwk } = require('pem-jwk');
 const TokenIntrospection = require('../src/index');
 
-const fs = require('fs');
-const jwt = require('jsonwebtoken');
-const pem2jwk = require('pem-jwk').pem2jwk;
-
+const { assert, expect } = chai;
 chai.use(chaiAsPromised);
 nock.disableNetConnect();
 
@@ -32,14 +30,17 @@ describe('Remote token introspection', () => {
       endpoint: 'http://example.com/oauth/introspection',
       client_id: 'client',
       client_secret: 'secret',
-      fetch: (url, opts) => {
+      async fetch(url, opts) {
         assert.equal(url, 'http://example.com/oauth/introspection');
         assert.equal(opts.method, 'POST');
         assert.equal(opts.headers.Authorization, 'Basic Y2xpZW50OnNlY3JldA==');
         assert.equal(opts.headers['Content-Type'], 'application/x-www-form-urlencoded');
         assert.equal(opts.body, 'token=token&token_type_hint=access_token');
         assert.isNull(opts.agent);
-        return Promise.resolve({ json: () => Promise.resolve({ active: true }) });
+        return {
+          ok: true,
+          json: () => Promise.resolve({ active: true }),
+        };
       },
     });
     return expect(introspection('token', 'access_token')).to.eventually.deep.equal({ active: true });
@@ -51,9 +52,12 @@ describe('Remote token introspection', () => {
       client_id: 'client',
       client_secret: 'secret',
       proxy: 'example.proxy.com:3128',
-      fetch: (url, opts) => {
+      async fetch(url, opts) {
         assert.typeOf(opts.agent, 'object');
-        return Promise.resolve({ json: () => Promise.resolve({ active: true }) });
+        return {
+          ok: true,
+          json: () => Promise.resolve({ active: true }),
+        };
       },
     });
     return expect(introspection('token', 'access_token')).to.eventually.deep.equal({ active: true });
@@ -64,7 +68,12 @@ describe('Remote token introspection', () => {
       endpoint: 'http://example.com/oauth/introspection',
       client_id: 'client',
       client_secret: 'secret',
-      fetch: () => Promise.resolve({ json: () => Promise.resolve({ active: false }) }),
+      async fetch() {
+        return {
+          ok: true,
+          json: () => Promise.resolve({ active: false }),
+        };
+      },
     });
     return expect(introspection('token', 'access_token')).to.be.rejectedWith(Error, 'Token is not active');
   });
@@ -113,7 +122,12 @@ describe('Fallback order for introspection methods: local introspection with sta
       endpoint: 'http://example.com/oauth/introspection',
       client_id: 'client',
       client_secret: 'secret',
-      fetch: () => Promise.resolve({ json: () => Promise.resolve({ active: true }) }),
+      async fetch() {
+        return {
+          ok: true,
+          json: () => Promise.resolve({ active: true }),
+        };
+      },
     });
     return expect(introspection('token', 'access_token')).to.eventually.deep.equal({ active: true });
   });

@@ -34,7 +34,7 @@ module.exports = (options) => {
     jwksFetchKey = promisify(jwksClient.getSigningKey).bind(jwksClient);
   }
 
-  return async function localIntrospect(token, tokenTypeHint) {
+  return async function localIntrospect(token, tokenTypeHint = 'access_token') {
     if (!jwksFetchKey) {
       throw new errors.ConfigurationError('Neither `jwks` or `jwks_uri` defined');
     }

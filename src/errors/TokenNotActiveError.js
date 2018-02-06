@@ -1,7 +1,7 @@
 const IntrospectionError = require('./IntrospectionError');
 
 module.exports = class TokenNotActiveError extends IntrospectionError {
-  constructor(message) {
-    super(message || 'Token is not active');
+  constructor(message = 'Token is not active') {
+    super(message);
   }
 };
