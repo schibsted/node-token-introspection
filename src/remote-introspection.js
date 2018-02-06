@@ -30,7 +30,8 @@ module.exports = (options) => {
     }
 
     if (!res.ok) {
-      throw new errors.IntrospectionError(`Server error ${res.status} ${res.statusText} ${res.url} \n${await res.text()}`);
+      const errorBody = await res.text();
+      throw new errors.IntrospectionError(`Server error ${res.status} ${res.statusText} ${res.url} \n${errorBody}`);
     }
 
     const tokenData = await res.json();
