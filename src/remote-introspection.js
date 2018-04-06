@@ -3,10 +3,14 @@ const formEncode = require('form-urlencoded');
 const errors = require('./errors');
 
 module.exports = (options) => {
+  const authorization = options.access_token ? 
+    `Bearer ${options.access_token}` : 
+    `Basic ${Buffer.from(`${options.client_id}:${options.client_secret}`).toString('base64')}`;
+    
   const fetchOption = {
     method: 'POST',
     headers: {
-      Authorization: `Basic ${Buffer.from(`${options.client_id}:${options.client_secret}`).toString('base64')}`,
+      Authorization: authorization,
       'Content-Type': 'application/x-www-form-urlencoded',
       'User-Agent': options.user_agent,
     },
