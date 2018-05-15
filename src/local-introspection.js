@@ -1,6 +1,6 @@
 const debug = require('debug')('token-introspection');
 const JwksClient = require('jwks-rsa');
-const jwk2pem = require('pem-jwk').jwk2pem;
+const { jwk2pem } = require('pem-jwk');
 const jwt = require('jsonwebtoken');
 const { promisify } = require('util');
 const errors = require('./errors');
