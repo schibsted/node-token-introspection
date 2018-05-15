@@ -45,6 +45,7 @@ tokenIntrospection(token).then(console.log).catch(console.warn);
 | jwks_ratelimit_per_minute |          | Limits of jwks calls, defaults to 60 rpm |
 | client_id                 |          | Client ID used to introspect |
 | client_secret             |          | Client secret used to introspect |
+| access_token              |          | Access token used to introspect, instead of client credentials |
 | user_agent                |          | Defaults to `token-introspection` |
 | proxy                     |          | Optional url with port to proxy request through. Requires optional dependency [https-proxy-agent](https://www.npmjs.com/package/https-proxy-agent) |
 | fetch                     |          | Defaults to [node-fetch](https://github.com/bitinn/node-fetch), but you can inject [zipkin-instrumentation-fetch](https://www.npmjs.com/package/zipkin-instrumentation-fetch). |
