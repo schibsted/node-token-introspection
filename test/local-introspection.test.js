@@ -1,12 +1,11 @@
 const { expect } = require('chai');
 const chai = require('chai');
 const chaiAsPromised = require('chai-as-promised');
-const localIntrospection = require('../src/local-introspection');
-const errors = require('../src/errors');
-
 const fs = require('fs');
 const jwt = require('jsonwebtoken');
 const { pem2jwk } = require('pem-jwk');
+const localIntrospection = require('../src/local-introspection');
+const errors = require('../src/errors');
 
 chai.use(chaiAsPromised);
 
