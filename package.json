@@ -32,8 +32,8 @@
     "pem-jwk": "^2.0.0"
   },
   "engines": {
-    "node": "^8.9",
-    "npm": "^5.6.0"
+    "node": ">=8.9",
+    "npm": ">=5.6.0"
   },
   "peerDependencies": {
     "node-fetch": "2.x"
