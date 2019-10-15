@@ -16,7 +16,7 @@ function tokenIntrospect(opts = {}) {
     fetch: null,
   };
 
-  const options = Object.assign({}, defaults, opts);
+  const options = { ...defaults, ...opts };
 
   if (!options.jwks && !options.jwks_uri && !options.endpoint) {
     throw new errors.ConfigurationError('Static JWKS, a JWKS URI or introspection endpoint must be specified in the configuration');
@@ -37,7 +37,7 @@ function tokenIntrospect(opts = {}) {
     }
   }
 
-  const remoteIntrospect = remoteIntrospection(Object.assign({}, options, { proxy }));
+  const remoteIntrospect = remoteIntrospection({ ...options, proxy });
   const localIntrospect = localIntrospection(options);
 
   return async function introspect(token, tokenTypeHint) {

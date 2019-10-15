@@ -26,7 +26,7 @@ module.exports = (options) => {
     try {
       res = await options.fetch(
         options.endpoint,
-        Object.assign({ body: formEncode(data) }, fetchOption),
+        { body: formEncode(data), ...fetchOption },
       );
     } catch (err) {
       debug(`Remote token introspection request failed: ${err.message}`);

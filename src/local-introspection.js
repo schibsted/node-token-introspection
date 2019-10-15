@@ -65,7 +65,7 @@ module.exports = (options) => {
 
     try {
       const verified = await jwtVerify(token, pem, { algorithms: options.allowed_algs });
-      return Object.assign({ active: true }, verified);
+      return { active: true, ...verified };
     } catch (err) {
       if (err instanceof jwt.TokenExpiredError) {
         throw new errors.TokenExpiredError();
