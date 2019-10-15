@@ -13,7 +13,7 @@ const keyId = 'test_key_id';
 function setupPublicKeyJWK() {
   const publicKey = fs.readFileSync('./test/public.pem', 'ascii');
   const jwk = pem2jwk(publicKey);
-  return Object.assign({ kid: keyId, use: 'sig' }, jwk);
+  return { kid: keyId, use: 'sig', ...jwk };
 }
 function jwksWrap(keys) {
   return { keys };
@@ -27,7 +27,7 @@ describe('Local token introspection', () => {
     const accessTokenClaims = { exp: now + 5 };
     const accessToken = jwt.sign(accessTokenClaims, privateKey, { algorithm: 'RS256', keyid: keyId, noTimestamp: true });
     const localIntrospect = localIntrospection({ jwks: jwksWrap([publicKeyJWK]), allowed_algs: ['RS256'] });
-    return expect(localIntrospect(accessToken, 'access_token')).to.eventually.deep.equal(Object.assign({ active: true }, accessTokenClaims));
+    return expect(localIntrospect(accessToken, 'access_token')).to.eventually.deep.equal({ active: true, ...accessTokenClaims });
   });
 
   it('rejects mismatching kid for static JWKS', () => {

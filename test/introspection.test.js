@@ -14,7 +14,7 @@ const keyId = 'test_key_id';
 function setupJwks() {
   const publicKey = fs.readFileSync('./test/public.pem', 'ascii');
   const jwk = pem2jwk(publicKey);
-  return { keys: [Object.assign({ kid: keyId, use: 'sig' }, jwk)] };
+  return { keys: [{ kid: keyId, use: 'sig', ...jwk }] };
 }
 const privateKey = fs.readFileSync('./test/private.pem', 'ascii');
 const jwks = setupJwks(keyId);
@@ -111,7 +111,7 @@ describe('Local token introspection with static JWKS', () => {
     const now = Date.now() / 1000;
     const accessTokenClaims = { exp: now + 5 };
     const accessToken = jwt.sign(accessTokenClaims, privateKey, { algorithm: 'RS256', keyid: keyId, noTimestamp: true });
-    return expect(introspection(accessToken, 'access_token')).to.eventually.deep.equal(Object.assign({ active: true }, accessTokenClaims));
+    return expect(introspection(accessToken, 'access_token')).to.eventually.deep.equal({ active: true, ...accessTokenClaims });
   });
 
   it('does local introspection with remote keys if JWKS uri is specified', () => {
@@ -121,12 +121,12 @@ describe('Local token introspection with static JWKS', () => {
     });
     nock('http://example.com')
       .get('/jwks')
-      .reply(200, JSON.stringify(jwks));
+      .reply(200, jwks);
 
     const now = Date.now() / 1000;
     const accessTokenClaims = { exp: now + 5 };
     const accessToken = jwt.sign(accessTokenClaims, privateKey, { algorithm: 'RS256', keyid: keyId, noTimestamp: true });
-    return expect(introspection(accessToken, 'access_token')).to.eventually.deep.equal(Object.assign({ active: true }, accessTokenClaims));
+    return expect(introspection(accessToken, 'access_token')).to.eventually.deep.equal({ active: true, ...accessTokenClaims });
   });
 });
 
@@ -134,7 +134,7 @@ describe('Fallback order for introspection methods: local introspection with sta
   it('falls back to remote introspection if the verification with static JWKS and remote JWKS fails', () => {
     nock('http://example.com')
       .get('/jwks')
-      .reply(200, JSON.stringify({ keys: [] })); // no keys
+      .reply(200, { keys: [] }); // no keys
 
     const introspection = new TokenIntrospection({
       jwks: {}, // no keys
