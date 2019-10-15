@@ -121,7 +121,7 @@ describe('Local token introspection with static JWKS', () => {
     });
     nock('http://example.com')
       .get('/jwks')
-      .reply(200, JSON.stringify(jwks));
+      .reply(200, jwks);
 
     const now = Date.now() / 1000;
     const accessTokenClaims = { exp: now + 5 };
@@ -134,7 +134,7 @@ describe('Fallback order for introspection methods: local introspection with sta
   it('falls back to remote introspection if the verification with static JWKS and remote JWKS fails', () => {
     nock('http://example.com')
       .get('/jwks')
-      .reply(200, JSON.stringify({ keys: [] })); // no keys
+      .reply(200, { keys: [] }); // no keys
 
     const introspection = new TokenIntrospection({
       jwks: {}, // no keys
