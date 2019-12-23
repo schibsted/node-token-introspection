@@ -39,7 +39,7 @@ module.exports = (options) => {
     }
 
     const tokenData = await res.json();
-    if (tokenData.active === true) {
+    if (tokenData.active === true || tokenData.active === 'true') {
       return tokenData;
     }
 
