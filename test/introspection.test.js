@@ -97,6 +97,21 @@ describe('Remote token introspection', () => {
     });
     return expect(introspection('token', 'access_token')).to.be.rejectedWith(Error, 'Token is not active');
   });
+
+  it('accept token with active: "true" (string type)', () => {
+    const introspection = new TokenIntrospection({
+      endpoint: 'http://example.com/oauth/introspection',
+      client_id: 'client',
+      client_secret: 'secret',
+      async fetch() {
+        return {
+          ok: true,
+          json: () => Promise.resolve({ active: 'true' }),
+        };
+      },
+    });
+    return expect(introspection('token', 'access_token')).to.eventually.deep.equal({ active: 'true' });
+  });
 });
 
 describe('Local token introspection with static JWKS', () => {
