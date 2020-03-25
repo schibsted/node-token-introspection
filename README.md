@@ -52,6 +52,20 @@ tokenIntrospection(token).then(console.log).catch(console.warn);
 
 At least one of the required configuration parameters `jwks`, `jwks_uri` or `endpoint` must be specified.
 
+### Flexibility in fetch
+As you can provide your own `fetch` implementation, it is possible override the agent `fetch` uses for various purposes.
+These purpose can be things like zipkin/tracing, self signed certificates, client TLS authentication, adding a keepAlive, etc.
+
+```js
+const customFetch = (endpoint, data) => {
+    data.agent = new https.Agent(...);
+    return fetch(endpoint, data);
+};
+
+const tokenIntrospection = require('token-introspection');
+const introspector = tokenIntrospection({endpoint, ..., fetch: customFetch});
+```
+
 ## Errors
 This is a promise/async library, and will resolve with success or reject with an Error subclass.
 
