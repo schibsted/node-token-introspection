@@ -14,7 +14,6 @@ module.exports = (options) => {
       'Content-Type': 'application/x-www-form-urlencoded',
       'User-Agent': options.user_agent,
     },
-    agent: options.proxy,
   };
 
   return async function remoteIntrospect(token, tokenTypeHint) {

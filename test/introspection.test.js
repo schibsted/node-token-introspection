@@ -36,7 +36,6 @@ describe('Remote token introspection', () => {
         assert.equal(opts.headers.Authorization, 'Basic Y2xpZW50OnNlY3JldA==');
         assert.equal(opts.headers['Content-Type'], 'application/x-www-form-urlencoded');
         assert.equal(opts.body, 'token=token&token_type_hint=access_token');
-        assert.isNull(opts.agent);
         return {
           ok: true,
           json: () => Promise.resolve({ active: true }),
@@ -56,24 +55,6 @@ describe('Remote token introspection', () => {
         assert.equal(opts.headers.Authorization, 'Bearer test1234');
         assert.equal(opts.headers['Content-Type'], 'application/x-www-form-urlencoded');
         assert.equal(opts.body, 'token=token&token_type_hint=access_token');
-        assert.isNull(opts.agent);
-        return {
-          ok: true,
-          json: () => Promise.resolve({ active: true }),
-        };
-      },
-    });
-    return expect(introspection('token', 'access_token')).to.eventually.deep.equal({ active: true });
-  });
-
-  it('calls with special proxy agent if given', () => {
-    const introspection = new TokenIntrospection({
-      endpoint: 'http://example.com/oauth/introspection',
-      client_id: 'client',
-      client_secret: 'secret',
-      proxy: 'example.proxy.com:3128',
-      async fetch(url, opts) {
-        assert.typeOf(opts.agent, 'object');
         return {
           ok: true,
           json: () => Promise.resolve({ active: true }),
