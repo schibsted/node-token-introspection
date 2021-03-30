@@ -12,7 +12,6 @@ function tokenIntrospect(opts = {}) {
     client_id: '',
     client_secret: '',
     user_agent: 'token-introspection',
-    proxy: '',
     fetch: null,
   };
 
@@ -26,18 +25,7 @@ function tokenIntrospect(opts = {}) {
     options.fetch = require('node-fetch');
   }
 
-  let proxy = null;
-  if (options.proxy) {
-    try {
-      const HttpsProxy = require('https-proxy-agent');
-      proxy = new HttpsProxy(options.proxy);
-      process.env.HTTPS_PROXY = options.proxy;
-    } catch (e) {
-      throw new errors.ConfigurationError('Proxy given, but missing https-proxy-agent package');
-    }
-  }
-
-  const remoteIntrospect = remoteIntrospection({ ...options, proxy });
+  const remoteIntrospect = remoteIntrospection(options);
   const localIntrospect = localIntrospection(options);
 
   return async function introspect(token, tokenTypeHint) {

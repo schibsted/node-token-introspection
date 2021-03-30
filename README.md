@@ -47,19 +47,22 @@ tokenIntrospection(token).then(console.log).catch(console.warn);
 | client_secret             |          | Client secret used to introspect |
 | access_token              |          | Access token used to introspect, instead of client credentials |
 | user_agent                |          | Defaults to `token-introspection` |
-| proxy                     |          | Optional url with port to proxy request through. Requires optional dependency [https-proxy-agent](https://www.npmjs.com/package/https-proxy-agent) |
 | fetch                     |          | Defaults to [node-fetch](https://github.com/bitinn/node-fetch), but you can inject [zipkin-instrumentation-fetch](https://www.npmjs.com/package/zipkin-instrumentation-fetch). |
 
 At least one of the required configuration parameters `jwks`, `jwks_uri` or `endpoint` must be specified.
 
 ### Flexibility in fetch
 As you can provide your own `fetch` implementation, it is possible override the agent `fetch` uses for various purposes.
-These purpose can be things like zipkin/tracing, self signed certificates, client TLS authentication, adding a keepAlive, etc.
+These purpose can be things like zipkin/tracing, self signed certificates, client TLS authentication, proxy, adding a keepAlive, etc.
 
 ```js
-const customFetch = (endpoint, data) => {
-    data.agent = new https.Agent(...);
-    return fetch(endpoint, data);
+const HttpsProxy = require('https-proxy-agent');
+const proxy = new HttpsProxy(proxySettings);
+
+const customFetch = (endpoint, options) => {
+    options.agent = proxy;
+    process.env.HTTPS_PROXY = proxy;
+    return fetch(endpoint, options);
 };
 
 const tokenIntrospection = require('token-introspection');
