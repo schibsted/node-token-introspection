@@ -1,5 +1,5 @@
 const debug = require('debug')('token-introspection');
-const formEncode = require('form-urlencoded').default;
+const formEncode = require('form-urlencoded');
 const errors = require('./errors');
 
 module.exports = (options) => {
