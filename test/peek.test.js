@@ -1,6 +1,7 @@
 const chai = require('chai');
 const jwt = require('jsonwebtoken');
 const TokenIntrospection = require('../src/index');
+
 const { assert } = chai;
 
 describe('Peek into jwt', () => {
