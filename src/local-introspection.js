@@ -28,6 +28,7 @@ module.exports = (options) => {
       cache: options.jwks_cache_enabled || true,
       cacheMaxEntries: options.jwks_cache_maxentries || 10,
       cacheMaxAge: options.jwks_cache_time || 5 * 60 * 1000, // 5 min
+      timeout: options.jwks_timeout || 10 * 1000,
       rateLimit: options.jwks_ratelimit_enabled || true,
       jwksRequestsPerMinute: options.jwks_ratelimit_per_minute || 60, // 1 rps
       jwksUri: options.jwks_uri,

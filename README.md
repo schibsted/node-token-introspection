@@ -41,6 +41,7 @@ tokenIntrospection(token).then(console.log).catch(console.warn);
 | jwks_cache_enabled        |          | If jwks response should be cached, defaults to true |
 | jwks_cache_maxentries     |          | How many jwk's to cache, defaults to 10 |
 | jwks_cache_time           |          | How long a jwk is cached, in ms, defaults to 5 min |
+| jwks_timeout              |          | Timeout in ms for fetching jwks, defaults to 10s |
 | jwks_ratelimit_enabled    |          | If ratelimit of calls to jwks endpoint, defaults to true |
 | jwks_ratelimit_per_minute |          | Limits of jwks calls, defaults to 60 rpm |
 | client_id                 |          | Client ID used to introspect |

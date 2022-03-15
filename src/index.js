@@ -1,4 +1,5 @@
 const debug = require('debug')('token-introspection');
+const jwt = require('jsonwebtoken');
 const localIntrospection = require('./local-introspection');
 const remoteIntrospection = require('./remote-introspection');
 const errors = require('./errors');
@@ -48,4 +49,5 @@ function tokenIntrospect(opts = {}) {
 }
 
 module.exports = tokenIntrospect;
+module.exports.peek = (token) => jwt.decode(token, { complete: true });
 module.exports.errors = errors;
