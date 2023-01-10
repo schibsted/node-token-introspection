@@ -4,4 +4,5 @@ node_js:
 - '14'
 - '16'
 
+before_script: npm i node-fetch@2 --no-save
 script: npm run lint && npm run test

@@ -23,7 +23,7 @@ function tokenIntrospect(opts = {}) {
   }
 
   if ((options.jwks_uri || options.endpoint) && !options.fetch) {
-    options.fetch = require('node-fetch');
+    options.fetch = require('node-fetch').default;
   }
 
   const remoteIntrospect = remoteIntrospection(options);
