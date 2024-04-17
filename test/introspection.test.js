@@ -125,11 +125,14 @@ describe('Local token introspection with static JWKS', () => {
   it('does local introspection with remote keys if JWKS uri is specified', () => {
     const introspection = new TokenIntrospection({
       jwks_uri: jwksUri,
-      fetch: () => { throw new Error('should not be called'); },
+      async fetch(url) {
+        assert.equal(url, jwksUri);
+        return {
+          ok: true,
+          json: () => Promise.resolve(jwks),
+        };
+      },
     });
-    nock('http://example.com')
-      .get('/jwks')
-      .reply(200, jwks);
 
     const now = Date.now() / 1000;
     const accessTokenClaims = { exp: now + 5 };
