@@ -143,17 +143,20 @@ describe('Local token introspection with static JWKS', () => {
 
 describe('Fallback order for introspection methods: local introspection with static JWKS -> local introspection with remote JWKS -> remote introspection', () => {
   it('falls back to remote introspection if the verification with static JWKS and remote JWKS fails', () => {
-    nock('http://example.com')
-      .get('/jwks')
-      .reply(200, { keys: [] }); // no keys
-
     const introspection = new TokenIntrospection({
       jwks: {}, // no keys
       jwks_uri: jwksUri,
       endpoint: 'http://example.com/oauth/introspection',
       client_id: 'client',
       client_secret: 'secret',
-      async fetch() {
+      async fetch(url) {
+        if (url === jwksUri) {
+          return {
+            ok: true,
+            json: () => Promise.resolve({ keys: [] }), // no keys
+          };
+        }
+
         return {
           ok: true,
           json: () => Promise.resolve({ active: true }),
