@@ -110,7 +110,7 @@ describe('Remote token introspection', () => {
 describe('Local token introspection with static JWKS', () => {
   it('does local introspection with static keys if JWKS is specified', () => {
     const introspection = new TokenIntrospection({
-      fetch: () => {
+      async jwks_client_fetcher() {
         throw new Error('should not be called');
       },
       jwks,
@@ -125,12 +125,9 @@ describe('Local token introspection with static JWKS', () => {
   it('does local introspection with remote keys if JWKS uri is specified', () => {
     const introspection = new TokenIntrospection({
       jwks_uri: jwksUri,
-      async fetch(url) {
+      async jwks_client_fetcher(url) {
         assert.equal(url, jwksUri);
-        return {
-          ok: true,
-          json: () => Promise.resolve(jwks),
-        };
+        return jwks;
       },
     });
 
@@ -149,14 +146,10 @@ describe('Fallback order for introspection methods: local introspection with sta
       endpoint: 'http://example.com/oauth/introspection',
       client_id: 'client',
       client_secret: 'secret',
-      async fetch(url) {
-        if (url === jwksUri) {
-          return {
-            ok: true,
-            json: () => Promise.resolve({ keys: [] }), // no keys
-          };
-        }
-
+      async jwks_client_fetcher() {
+        return { keys: [] };
+      },
+      async fetch() {
         return {
           ok: true,
           json: () => Promise.resolve({ active: true }),
