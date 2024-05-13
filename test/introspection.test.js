@@ -125,6 +125,7 @@ describe('Local token introspection with static JWKS', () => {
   it('does local introspection with remote keys if JWKS uri is specified', () => {
     const introspection = new TokenIntrospection({
       jwks_uri: jwksUri,
+      fetch: () => { throw new Error('should not be called'); },
       async jwks_client_fetcher(url) {
         assert.equal(url, jwksUri);
         return jwks;
