@@ -110,7 +110,7 @@ describe('Remote token introspection', () => {
 describe('Local token introspection with static JWKS', () => {
   it('does local introspection with static keys if JWKS is specified', () => {
     const introspection = new TokenIntrospection({
-      fetch: () => {
+      async jwks_client_fetcher() {
         throw new Error('should not be called');
       },
       jwks,
@@ -126,10 +126,11 @@ describe('Local token introspection with static JWKS', () => {
     const introspection = new TokenIntrospection({
       jwks_uri: jwksUri,
       fetch: () => { throw new Error('should not be called'); },
+      async jwks_client_fetcher(url) {
+        assert.equal(url, jwksUri);
+        return jwks;
+      },
     });
-    nock('http://example.com')
-      .get('/jwks')
-      .reply(200, jwks);
 
     const now = Date.now() / 1000;
     const accessTokenClaims = { exp: now + 5 };
@@ -140,16 +141,15 @@ describe('Local token introspection with static JWKS', () => {
 
 describe('Fallback order for introspection methods: local introspection with static JWKS -> local introspection with remote JWKS -> remote introspection', () => {
   it('falls back to remote introspection if the verification with static JWKS and remote JWKS fails', () => {
-    nock('http://example.com')
-      .get('/jwks')
-      .reply(200, { keys: [] }); // no keys
-
     const introspection = new TokenIntrospection({
       jwks: {}, // no keys
       jwks_uri: jwksUri,
       endpoint: 'http://example.com/oauth/introspection',
       client_id: 'client',
       client_secret: 'secret',
+      async jwks_client_fetcher() {
+        return { keys: [] };
+      },
       async fetch() {
         return {
           ok: true,

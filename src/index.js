@@ -8,6 +8,7 @@ function tokenIntrospect(opts = {}) {
   const defaults = {
     jwks: null,
     jwks_uri: '',
+    jwks_client_fetcher: null,
     endpoint: '',
     allowed_algs: ['RS256'],
     client_id: '',

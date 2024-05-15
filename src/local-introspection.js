@@ -32,6 +32,7 @@ module.exports = (options) => {
       rateLimit: options.jwks_ratelimit_enabled || true,
       jwksRequestsPerMinute: options.jwks_ratelimit_per_minute || 60, // 1 rps
       jwksUri: options.jwks_uri,
+      fetcher: options.jwks_client_fetcher,
     });
   }
 

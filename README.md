@@ -44,6 +44,7 @@ tokenIntrospection(token).then(console.log).catch(console.warn);
 | jwks_timeout              |          | Timeout in ms for fetching jwks, defaults to 10s |
 | jwks_ratelimit_enabled    |          | If ratelimit of calls to jwks endpoint, defaults to true |
 | jwks_ratelimit_per_minute |          | Limits of jwks calls, defaults to 60 rpm |
+| jwks_client_fetcher       |          | Fetcher function that is used by the [Jwks Client library](https://www.npmjs.com/package/jwks-rsa). It must resolve to the Jwks response. Some `jwks_*` options do not apply when using the custom jwks client fetcher |
 | client_id                 |          | Client ID used to introspect |
 | client_secret             |          | Client secret used to introspect |
 | access_token              |          | Access token used to introspect, instead of client credentials |
